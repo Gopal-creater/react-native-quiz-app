@@ -9,9 +9,23 @@ const QuizNote: React.FC<{ quizState: QuizState }> = ({ quizState }) => {
     return false;
   };
 
+  const isAnswerCorrect = () => {
+    if (
+      quizState.currentQuestion.correctOptionId ===
+      quizState.currentUserAnswer[quizState.currentQuestion.id]
+    ) {
+      return true;
+    }
+    return false;
+  };
+
   return isAnswerSelected() ? (
     <View className="mb-8">
-      <CustomTxt>Note</CustomTxt>
+      {isAnswerCorrect() ? (
+        <CustomTxt>Right Note</CustomTxt>
+      ) : (
+        <CustomTxt>Wrong Note</CustomTxt>
+      )}
     </View>
   ) : null;
 };
