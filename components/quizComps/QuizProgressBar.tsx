@@ -3,11 +3,12 @@ import { View } from "react-native";
 import { AnimatedCircularProgress } from "react-native-circular-progress";
 import CustomTxt from "../common/CustomTxt";
 import { QuizState } from "@/redux/slices/quizSlice";
+import { QuizQuestions } from "@/constants/questions";
 
 const QuizProgressBar: React.FC<{ quizState: QuizState }> = ({ quizState }) => {
   const completedPercentage = Math.round(
     ((quizState.totalCorrect + quizState.totalIncorrect) /
-      quizState.questions.length) *
+      QuizQuestions.length) *
       100
   );
   return (

@@ -8,16 +8,15 @@ export interface Option {
 }
 
 export interface Question {
-  id: string;
+  id: number;
   text: string;
   options: Option[];
   correctOptionId: string;
 }
 
 export interface QuizState {
-  questions: Question[];
-  currentQuestionIndex: number;
-  userAnswers: { [questionId: string]: string };
+  currentQuestion: Question;
+  currentUserAnswer: { [questionId: string]: string };
   quizCompleted: boolean;
   totalCorrect: number;
   totalIncorrect: number;
@@ -32,9 +31,8 @@ export interface QuizHistory {
 }
 
 const initialState: QuizState = {
-  questions: QuizQuestions,
-  currentQuestionIndex: 0,
-  userAnswers: {},
+  currentQuestion: QuizQuestions[0],
+  currentUserAnswer: {},
   quizCompleted: false,
   totalCorrect: 0,
   totalIncorrect: 0,
@@ -45,56 +43,34 @@ const quizSlice = createSlice({
   name: "quiz",
   initialState,
   reducers: {
-    answerQuestion: (
-      state,
-      action: PayloadAction<{ questionId: string; optionId: string }>
-    ) => {
-      const { questionId, optionId } = action.payload;
-      const question = state.questions.find((q) => q.id === questionId);
+    answerQuestion: (state, action: PayloadAction<{ optionId: string }>) => {
+      const { optionId } = action.payload;
+      const currentQuestionId = state.currentQuestion.id;
 
-      if (question) {
-        const oldAnswer = state.userAnswers[questionId];
-        state.userAnswers[questionId] = optionId;
-
-        if (oldAnswer) {
-          // If changing an answer, first remove the old answer from the totals
-          if (oldAnswer === question.correctOptionId) {
-            state.totalCorrect--;
-          } else {
-            state.totalIncorrect--;
-          }
-        }
-
-        // Now add the new answer to the totals
-        if (optionId === question.correctOptionId) {
-          state.totalCorrect++;
-        } else {
-          state.totalIncorrect++;
-        }
+      // increment or decrement totalCorrect
+      if (optionId === state.currentQuestion.correctOptionId) {
+        state.totalCorrect++;
+        state.currentUserAnswer[currentQuestionId] = optionId;
+      } else {
+        state.totalIncorrect++;
+        state.currentUserAnswer[currentQuestionId] = optionId;
       }
     },
     nextQuestion: (state) => {
-      if (state.currentQuestionIndex < state.questions.length - 1) {
-        state.currentQuestionIndex += 1;
-      }
-    },
-    previousQuestion: (state) => {
-      if (state.currentQuestionIndex > 0) {
-        state.currentQuestionIndex -= 1;
-      }
+      state.currentQuestion = QuizQuestions[state.currentQuestion.id++];
     },
     completeQuiz: (state) => {
       state.quizCompleted = true;
       state.quizHistory.push({
         score: state.totalCorrect,
-        totalQuestions: state.questions.length,
+        totalQuestions: QuizQuestions.length,
         win: state.totalCorrect >= 16 ? true : false,
         quizName: "G1 Signs Quiz",
       });
     },
     resetQuiz: (state) => {
-      state.currentQuestionIndex = 0;
-      state.userAnswers = {};
+      state.currentQuestion = QuizQuestions[0];
+      state.currentUserAnswer = {};
       state.quizCompleted = false;
       state.totalCorrect = 0;
       state.totalIncorrect = 0;
@@ -102,11 +78,6 @@ const quizSlice = createSlice({
   },
 });
 
-export const {
-  answerQuestion,
-  nextQuestion,
-  previousQuestion,
-  completeQuiz,
-  resetQuiz,
-} = quizSlice.actions;
+export const { answerQuestion, nextQuestion, completeQuiz, resetQuiz } =
+  quizSlice.actions;
 export default quizSlice.reducer;

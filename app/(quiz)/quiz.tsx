@@ -10,6 +10,7 @@ import { QuizQuestionStats } from "@/components/quizComps/QuizQuestionStats";
 import QuizQuestion from "@/components/quizComps/QuizQuestion";
 import { QuizAnswerOptions } from "@/components/quizComps/QuizAnswerOptions";
 import QuizNavigationBtns from "@/components/quizComps/QuizNavigationBtns";
+import QuizNote from "@/components/quizComps/QuizNote";
 
 const Quiz = () => {
   const state: QuizState = useSelector((state: RootState) => state.quiz);
@@ -24,6 +25,7 @@ const Quiz = () => {
           <QuizQuestion quizState={state} />
         </View>
         <QuizAnswerOptions quizState={state} />
+        <QuizNote quizState={state} />
         <QuizNavigationBtns quizState={state} />
       </ScrollView>
     </SafeAreaView>

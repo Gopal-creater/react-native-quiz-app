@@ -4,20 +4,30 @@ import CustomBtn from "../common/CustomBtn";
 import {
   completeQuiz,
   nextQuestion,
-  previousQuestion,
   QuizState,
   resetQuiz,
 } from "@/redux/slices/quizSlice";
 import { useDispatch } from "react-redux";
 import { router } from "expo-router";
+import { QuizQuestions } from "@/constants/questions";
 
 const QuizNavigationBtns: React.FC<{ quizState: QuizState }> = ({
   quizState,
 }) => {
   const dispatch = useDispatch();
 
+  const isLastQuestion = () => {
+    if (quizState.currentQuestion.id === QuizQuestions.length) return true;
+    return false;
+  };
+
+  const isAnswerSelected = () => {
+    if (quizState.currentUserAnswer[quizState.currentQuestion.id]) return true;
+    return false;
+  };
+
   const handleNext = () => {
-    if (quizState.currentQuestionIndex < quizState.questions.length - 1) {
+    if (!isLastQuestion()) {
       dispatch(nextQuestion());
     } else {
       dispatch(completeQuiz());
@@ -27,29 +37,17 @@ const QuizNavigationBtns: React.FC<{ quizState: QuizState }> = ({
     }
   };
 
-  const handlePrevious = () => {
-    dispatch(previousQuestion());
-  };
-  return (
+  return isAnswerSelected() ? (
     <View className="flex-row justify-between">
-      <CustomBtn
-        handlePress={() => handlePrevious()}
-        disabled={quizState.currentQuestionIndex === 0}
-        containerStyles="w-40"
-      >
-        Previous
-      </CustomBtn>
       <CustomBtn
         handlePress={() => handleNext()}
         disabled={quizState.quizCompleted}
-        containerStyles="w-40"
+        containerStyles="w-full"
       >
-        {quizState.currentQuestionIndex === quizState.questions.length - 1
-          ? "Finish"
-          : "Next"}
+        {isLastQuestion() ? "Finish" : "Continue"}
       </CustomBtn>
     </View>
-  );
+  ) : null;
 };
 
 export default QuizNavigationBtns;
